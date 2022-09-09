@@ -1,0 +1,5 @@
+recursive-include src/ahv15/specterext/spotbit/templates *
+recursive-include src/ahv15/specterext/spotbit/static *
+recursive-include src/ahv15/specterext/spotbit/*/LC_MESSAGES *.mo
+recursive-include src/ahv15/specterext/spotbit/translations/*/LC_MESSAGES *.po
+include requirements.txt

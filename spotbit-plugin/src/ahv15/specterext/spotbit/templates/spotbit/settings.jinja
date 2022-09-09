@@ -1,0 +1,321 @@
+{% extends "spotbit/components/spotbit_tab.jinja" %}
+{% block title %}Settings{% endblock %}
+{% set tab = 'settings_get' %}
+{% block content %}
+    <br/>
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body{
+            background-color: #e3f2fd;
+        }
+        .container{
+            position: relative;
+            max-width: 320px;
+            width: 100%;
+            margin: 20px 0px 30px;
+        }
+        .select-btn{
+            display: flex;
+            height: 50px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--cmap-border);
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        .select-btn .arrow-dwn{
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 3px;
+            transform: rotate(45deg);
+        }
+        .select-btn.open .arrow-dwn{
+            transform: rotate(-135deg);
+        }
+        .list-items{
+            position: relative;
+            margin-top: 15px;
+            border-radius: 8px;
+            padding: 16px;
+            background-color: #fff;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        .select-btn.open ~ .list-items{
+            display: block;
+        }
+
+        .list-items .item{
+            display: flex;
+            align-items: center;
+            list-style: none;
+            height: 50px;
+            transition: 0.3s;
+            padding: 0 15px;
+            border-radius: 8px;
+        }
+
+        .list-items .item:hover{
+            background-color: #e7edfe;
+        }
+
+        .list-items .checkbox:hover{
+            cursor: pointer;
+        }
+
+        .item .item-text{
+            font-size: 16px;
+            font-weight: 400;
+            color: black;
+        }
+        .item .checkbox{
+            align-items: center;
+            justify-content: center;
+            height: 16px;
+            width: 20px;
+            border-radius: 4px;
+            margin-right: 12px;
+            border: 1.5px solid #c0c0c0;
+            transition: all 0.3s ease-in-out;
+            min-width: 20px;
+        }
+        .item.selected .checkbox{
+            background-color: #4070f4;
+            border-color: #4070f4;
+        }
+
+    </style>
+
+    <div class="card">
+        <h1>{{ _("Configure your extension") }}</h1>
+
+        <form action="{{ url_for(service.get_blueprint_name() + '.settings_post') }}" method="POST" role="form">
+            <div class="container">
+                <div class="select-btn">
+                    <span class="btn-text">Select Currencies</span>
+                    <span class="arrow-dwn"></span>
+                </div>
+                {% set currencies = ['USD', 'EUR', 'CAD', 'GBP', 'AUD', 'SEK', 'BRL', 'CZK', 'INR']%}
+                <ul class="list-items">
+                    {% for item in currencies %}
+                        <li class="item">
+                            <input onclick='selectedCurrencies({{item | tojson}})' class="checkbox" type="checkbox" name="currency{{ loop.index }}" value="{{ item }}" autocomplete="off">
+                            <span class="item-text">{{ item }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+
+
+            <div>
+                <table style="border: none; margin: 30px 0px;">
+                    <tbody>
+                        <tr style="background: none;">
+                            <td style="padding: 0px; border: none;">
+                                {{ _("Select Exchange (disabled if no currencies are chosen):") }}
+                            </td>
+                        </tr>
+                        <tr style="background: none;">
+                            <td style="padding: 0px; border: none;">
+                                <fieldset style="border:none; width: 100%;"> 
+                                    <select name="exchange" style="padding: 10px;" class = "exchange-select" disabled autocomplete = "off">
+                                        <optgroup class = "options" label="Exchanges">
+                                            <option value="none" selected disabled hidden> Select an Option </option>
+                                            {% set seq = ['Bitstamp', 'Coinbase', 'Kraken', 'Bitfinex', 'Okcoin']%}
+                                            {% for item in seq %}
+                                                <option value="{{ item }}">{{ item }}</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    </select>
+                                </fieldset>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2> Configure your historical data below: </h2><br>
+            <input type="hidden" class="csrf-token" name="csrf_token" value="{{ csrf_token() }}"/>
+
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date">
+
+            <div>
+                <table style="border: none; margin: 30px 0px;">
+                    <tbody>
+                        <tr style="background: none;">
+                            <td style="padding: 0px; border: none;">
+                                {{ _("Frequency:") }}
+                            </td>
+                        </tr>
+                        <tr style="background: none;">
+                            <td style="padding: 0px; border: none;">
+                                <fieldset style="border:none; width: 100%;"> 
+                                    <select name="frequencies" id= "frequencies" style="padding: 10px;">
+                                        <optgroup label="Common Frequencies">
+                                            <option value="1m">1 Minute</option>
+                                            <option value="30m">30 Minutes</option>
+                                            <option value="1h">1 Hour</option>
+                                            <option value="1d">1 Day</option>
+                                        </optgroup>
+                                    </select>
+                                </fieldset>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        
+            <div class="row">
+                <button type="submit" class="btn">{{ _("Add") }}</button>
+            </div>
+
+        </form>
+    </div>
+    <br/>
+    <br/>
+    <br/>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+    <script>
+
+        var selected_currencies = {}
+        var selected_exchanges = []
+
+        const currency_mapping = {
+            "usd": {
+                "support": [
+                    "bitstamp",
+                    "coinbase",
+                    "kraken",
+                    "bitfinex",
+                    "okcoin",
+                ],
+            },
+            "eur": {
+                "support": [
+                    "bitstamp",
+                    "coinbase",
+                    "kraken",
+                    "bitfinex"
+                ],
+            },
+            "gbp": {
+                "support": [
+                    "bitstamp",
+                    "coinbase",
+                    "kraken",
+                    "bitfinex",
+                    "bitstamp",
+                ],
+            },
+            "chf": {
+                "support": ["coinbase", "kraken"],
+            },
+            "aud": {
+                "support": ["coinbase", "kraken"],
+            },
+            "cad": {
+                "support": ["coinbase", "kraken"],
+            },
+            "nzd": {"support": ["coinbase"]},
+            "hkd": {"support": ["coinbase"]},
+            "jpy": {
+                "support": [
+                    "coinbase",
+                    "kraken",
+                    "bitfinex",
+                ],
+            },
+            "rub": {"support": ["coinbase"]},
+            "ils": {"support": ["coinbase"]},
+            "jod": {"support": ["coinbase"]},
+            "twd": {"support": ["coinbase"]},
+            "brl": {"support": ["coinbase"]},
+            "sek": {"support": ["coinbase"]},
+            "czk": {"support": ["coinbase"]},
+            "inr": {"support": ["coinbase"]}
+        }
+
+        const selectBtn = document.querySelector(".select-btn");
+        const checkbox = document.querySelectorAll(".checkbox");
+
+        const options = document.querySelectorAll(".options");
+
+
+
+        selectBtn.addEventListener("click", () => {
+            selectBtn.classList.toggle("open");
+        });
+
+        checkbox.forEach(item => {
+            item.addEventListener("click", () => {
+                item.classList.toggle("selected");
+
+                let selected = document.querySelectorAll(".selected"),
+                    btnText = document.querySelector(".btn-text");
+
+                    if(selected && selected.length > 0){
+                        if (selected.length == 1) {
+                            btnText.innerText = `1 Currency Selected`;
+                        } else {
+                            btnText.innerText = `${selected.length} Currencies Selected`;
+                        }
+                    }else{
+                        btnText.innerText = "Select Currencies";
+                    }
+            });
+        })
+
+
+        function selectedCurrencies(p1) {
+            const exchangeSelect = document.querySelector(".exchange-select");
+            if (!selected_currencies[p1]) {
+                selected_currencies[p1] = true
+            } else {
+                delete selected_currencies[p1]
+            }
+            selected_exchanges = []
+            for (var key in selected_currencies) {
+                if(selected_exchanges.length == 0) {
+                    selected_exchanges = currency_mapping[key.toLowerCase()]['support'];
+                } else {
+                    selected_exchanges = selected_exchanges.filter(value => currency_mapping[key.toLowerCase()]['support'].includes(value));
+                }
+            }
+            if (selected_exchanges.length != 0) {
+                exchangeSelect.removeAttribute('disabled');
+            } else {
+                exchangeSelect.setAttribute('disabled', '');
+            }
+            
+            for (i = 1; i < options[0].children.length; i++) {
+                if(selected_exchanges.includes(options[0].children[i].value.toLowerCase())) {
+                    options[0].children[i].removeAttribute('hidden');
+                } else {
+                    options[0].children[i].setAttribute('hidden', '');
+                }
+            }
+        }
+
+
+
+    </script>
+{% endblock %}

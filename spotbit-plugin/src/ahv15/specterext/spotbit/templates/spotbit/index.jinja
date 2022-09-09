@@ -1,0 +1,187 @@
+{% extends "spotbit/components/spotbit_tab.jinja" %}
+{% block title %}Settings{% endblock %}
+{% set tab = 'index' %}
+{% block content %}
+    <style>
+
+        
+          thead tr {
+            background-color: #00CAF1;
+            text-align: left;
+          }
+
+          tr {
+            padding: 12px 15px;
+            background-color: var(--cmap-border-highlight);
+          }
+
+          tbody tr:nth-of-type(even) {
+            background-color: RoyalBlue;
+          }
+
+          tbody tr.active-row {
+            font-weight: bold;
+            color: #009879;
+          }
+
+          .removebtn {
+            border: none;
+            padding: 12px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            width:10px !important;
+          }
+          
+          .cancelbtn, .deletebtn {
+            float: none;
+            width: 10%;
+          }
+          
+          .cancelbtn {
+            background-color: #ccc;
+            color: black;
+          }
+          
+          .deletebtn {
+            background-color: #f44336;
+          }
+          
+          .container {
+            background-color: RoyalBlue;
+            margin: 100px 100px;
+            padding: 16px;
+            text-align: center;
+          }
+          
+          .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #474e5d;
+            padding-top: 50px;
+          }
+          
+          .modal-content {
+            background-color: var(--cmap-bg);
+            margin: 5% auto 15% auto;
+            border: 1px solid #888;
+            width: 50%;
+          }
+          
+          hr {
+            border: 1px solid #f1f1f1;
+            margin-bottom: 25px;
+          }
+          
+          .close {
+            position: absolute;
+            right: 35px;
+            top: 15px;
+            font-size: 40px;
+            font-weight: bold;
+            color: #f1f1f1;
+          }
+          
+          .close:hover,
+          .close:focus {
+            color: #f44336;
+            cursor: pointer;
+          }
+          
+          .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+          }
+
+          .button-clear {
+            all: unset;
+            cursor: pointer;
+          }
+
+    </style>
+    <br><br>
+    <div>
+        <form action="{{ url_for(service.get_blueprint_name() + '.index_post') }}" method="POST">
+        <table style="border: none; margin: 30px 0px;">
+            <thead>
+                <tr>
+                    <th style = "text-align:center">
+                      <button type = "button" class = "button-clear" onclick="document.getElementById('confirm-delete').style.display='block'">
+                        <img src="{{ url_for(service.id +'_endpoint' + '.static', filename="spotbit/img/close.svg") }}" style = "width:30px; height:30px;"/>
+                      </button>
+                      <div id="confirm-delete" class="modal" style = "padding:auto">
+                        <span onclick="document.getElementById('confirm-delete').style.display='none'" class="close" title="Close Modal">×</span>
+                              <div class="container">
+                                  <h1>Delete Stored Data</h1>
+                                  <p>Are you sure you want to delete all of the stored data?</p>
+                                  
+                                  <div class="clearfix">
+                                      <button type="button" onclick="document.getElementById('confirm-delete').style.display='none'" class="cancelbtn">Cancel</button>
+                                      <button type="submit" name = "pair" onclick="document.getElementById('confirm-delete').style.display='none'" class="deletebtn">Delete</button>
+                                  </div>
+                              </div>
+                              <input type="hidden" class="csrf-token" name="csrf_token" value="{{ csrf_token() }}"/>
+                      </div>
+                    </th>
+                    <th>Exchange</th>
+                    <th>Currency</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for element in status %}
+                    <tr>
+                        <td style = "border:none">
+                            <button type = "button" class = "button-clear" value = "{{ element }}" onclick="deleteExchange(this.value)">
+                              <img src="{{ url_for(service.id +'_endpoint' + '.static', filename="spotbit/img/stop_symbol.svg") }}" style = "width:40px;"/>
+                            </button>                
+                            <div id="confirm-remove" class="modal" style = "padding:auto">
+                              <span onclick="document.getElementById('confirm-remove').style.display='none'" class="close" title="Close Modal">×</span>
+                                    <div class="container">
+                                        <h1>Update configuration</h1>
+                                        <p>Are you sure you are no longer interested in this data?</p>
+                                        
+                                        <div class="clearfix">
+                                            <button type="button" onclick="document.getElementById('confirm-remove').style.display='none'" class="cancelbtn">Cancel</button>
+                                            <button type="submit" name = "pair" id = "pair" onclick="document.getElementById('confirm-remove').style.display='none'" class="deletebtn">Delete</button>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" class="csrf-token" name="csrf_token" value="{{ csrf_token() }}"/>
+                            </div>
+                        </td>
+
+                        <td>
+                            {{ element[0] }}
+                        </td>
+
+                        <td>
+                            {{ element[1] }}
+                        </td>
+
+                        <td>
+                            {{ element[2] }}
+                        </td>
+
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+    </div>
+{% endblock %}
+
+
+
+{% block scripts %}
+    <script>
+      function deleteExchange(info) {
+          document.getElementById('confirm-remove').style.display = 'block';
+          document.getElementById("pair").value = info;
+      }
+    </script>
+{% endblock %}

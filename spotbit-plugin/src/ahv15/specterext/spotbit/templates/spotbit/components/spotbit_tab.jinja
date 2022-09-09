@@ -1,0 +1,8 @@
+{% extends "spotbit/base.jinja" %}
+{% block main %}
+    <img src="{{ url_for(service.id +'_endpoint' + '.static', filename=service.logo) }}" width="300"/>    
+    {% from 'spotbit/components/spotbit_menu.jinja' import spotbit_menu with context %}
+    {{ spotbit_menu(tab) }}
+    {% block content %}
+    {% endblock %}
+{% endblock %}
